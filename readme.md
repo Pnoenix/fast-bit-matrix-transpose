@@ -81,4 +81,244 @@ Although I am not entirely sure, I think that there isn't really a single bottle
 [Bit-Matrix transpose](https://github.com/dsnet/matrix-transpose?tab=readme-ov-file)
 
 # Licensing
-Code is licensed under the MIT license, and can be used freely. 
+The project is licensed under the MIT license, and can be used freely. 
+
+# Full example of bits in registers
+Below is a full example of how the bits move around in the registers, during the transpose. The example uses a 4x4 matrix, but the concept is the same, regardless of size. Each bit is labeled A through P, so that it can be tracked. While what is show below, is how the transpose is implemented in the code, the compiler does some intrinsic magic, which means that the assembly does not perfectly reflect the code.
+
+```
+01: Input: 
+A B C D
+E F G H
+I J K L
+M N O P
+
+02: Register 1:
+A B C D
+E F G H
+
+03: Register 2:
+I J K L
+M N O P
+
+04: Results stored in Register 3 (Register 1 & 1100):
+A B C D
+E F G H
+&
+1 1 0 0
+1 1 0 0
+=
+A B 0 0
+E F 0 0
+
+05: Results stored in Register 4 (Register 2 & 1100):
+I J K L
+M N O P
+&
+1 1 0 0
+1 1 0 0
+=
+I J 0 0
+M N 0 0
+
+06: Results stored in Register 4 (Register 4 >> 2):
+I J 0 0
+M N 0 0
+>> 2
+0 0 I J
+0 0 M N
+
+07: Results stored in Register 3 (Register 3 | Register 4):
+A B 0 0
+E F 0 0
+|
+0 0 I J
+0 0 M N
+=
+A B I J
+E F M N
+
+08: Results stored in Register 2 (Register 2 & 0011):
+I J K L
+M N O P
+&
+0 0 1 1
+0 0 1 1
+=
+0 0 K L
+0 0 O P
+
+09: Results stored in Register 1 (Register 1 & 0011):
+A B C D
+E F G H
+&
+0 0 1 1
+0 0 1 1
+=
+0 0 C D
+0 0 G H
+
+10: Results stored in Register 1 (Register 1 << 2):
+0 0 C D
+0 0 G H
+<< 2
+C D 0 0
+G H 0 0
+
+11: Results stored in Register 4 (Register 1 | Register 2):
+C D 0 0
+G H 0 0
+|
+0 0 K L
+0 0 O P
+=
+C D K L
+G H O P
+
+Intermediate results (Note that the original values in Register 1 and 2 have been overwritten)
+
+Register 1:
+C D 0 0
+G H 0 0
+Register 2:
+0 0 K L
+0 0 O P
+Register 3:
+A B I J
+E F M N
+Register 4:
+C D K L
+G H O P
+
+Note that the values in Register 3 and 4 hold the results of the 2x2 swap, where the top right and bottom left 2x2 squares have been swapped. Now only a 1x1 swap is needed. When swizzling (The next step), imagine the rows/lanes in the SIMD registers as extending each other, as were it an array:
+
+12: Results stored in Register 1 (Swizzle Register 3 and Register 4, take row 0 and 2):
+A B I J << This row taken
+E F M N
+Swizzle
+C D K L << This row taken
+G H O P
+=
+A B I J
+C D K L
+
+13: Results stored in Register 2 (Swizzle Register 3 and Register 4, take row 1 and 3):
+A B I J
+E F M N << This row taken
+Swizzle
+C D K L
+G H O P << This row taken
+=
+E F M N
+G H O P
+
+14: Results stored in Register 3 (Register 1 & 1010):
+A B I J
+C D K L
+&
+1 0 1 0
+1 0 1 0
+=
+A 0 I 0
+C 0 K 0
+
+15: Results stored in Register 4 (Register 2 & 1010):
+E F M N
+G H O P
+&
+1 0 1 0
+1 0 1 0
+=
+E 0 M 0
+G 0 O 0
+
+16: Results stored in Register 4 (Register 4 >> 1):
+E 0 M 0
+G 0 O 0
+>> 1
+0 E 0 M
+0 G 0 O
+
+17: Results stored in Register 3 (Register 3 | Register 4):
+A 0 I 0
+C 0 K 0
+|
+0 E 0 M
+0 G 0 O
+=
+A E I M
+C G K O
+
+18: Results stored in Register 2 (Register 2 & 0101):
+E F M N
+G H O P
+&
+0 1 0 1
+0 1 0 1
+=
+0 F 0 N
+0 H 0 P
+
+19: Results stored in Register 1 (Register 1 & 0101):
+A B I J
+C D K L
+&
+0 1 0 1
+0 1 0 1
+=
+0 B 0 J
+0 D 0 L
+
+20: Results stored in Register 1 (Register 1 << 1):
+0 B 0 J
+0 D 0 L
+<< 1
+B 0 J 0
+D 0 L 0
+
+21: Results stored in Register 4 (Register 1 | Register 2):
+B 0 J 0
+D 0 L 0
+|
+0 F 0 N
+0 H 0 P
+=
+B F J N
+D H L P
+
+22: Results stored in Register 1 (Swizzle Register 3 and Register 4, take row 0 and 2):
+A E I M << This row taken
+C G K O
+Swizzle
+B F J N << This row taken
+D H L P
+=
+A E I M
+B F J N
+
+23: Results stored in Register 2 (Swizzle Register 3 and Register 4, take row 1 and 3):
+A E I M 
+C G K O << This row taken
+Swizzle
+B F J N 
+D H L P << This row taken
+=
+C G K O
+D H L P
+
+Final results:
+Register 1:
+A E I M
+B F J N
+Register 2:
+C G K O
+D H L P
+
+Output:
+A E I M
+B F J N
+C G K O
+D H L P
+```
+
+Each swap consists of two "parts" (Using the term parts loosely). The first part, where the top transposition is done, and the second part where the bottom transposition is done. A top transposition can be seen from step 4-7 — here the bottom left 2x2 square is transposed to the top right 2x2 square. The results of this "top transpose" are temporarily stored in Register 3. After this, a bottom transposition is performed from step 8 to 11. During this transposition, the 1 and 2 registers are used as temporary registers, whereas the 3 and 4 registers are used as temporary registers during the top transposition. The final result of the bottom transposition is stored in Register 4. Register 3 and 4 can now be moved back to Register 1 and 2, and the process of swapping temporary/storing registers repeats.
