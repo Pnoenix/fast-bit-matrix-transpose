@@ -77,7 +77,8 @@ The code has been run on an AMD Ryzen 7 5800H. When using 128-bit SIMD registers
 Although I am not entirely sure, I think that there isn't really a single bottleneck that can be optimized away. I looked at the LLVM MCA timeline output, and it looks like most of the time is simply used on waiting for other instructions to finish — those instructions taking one clock cycle to compute each, so not much to be done there as far as I'm aware. 
 
 # Resources
-[Hacker Delight](http://www.icodeguru.com/Embedded/Hacker's-Delight/048.htm) (In case this is taken down, the book is called `Hackers Delight`, and the chapther is 7-3)
+[Hacker Delight](http://www.icodeguru.com/Embedded/Hacker's-Delight/048.htm) (In case this is taken down, the book is called `Hackers Delight`, and the chapther is 7-3)<br>
 [Bit-Matrix transpose](https://github.com/dsnet/matrix-transpose?tab=readme-ov-file)
 
 # Licensing
+Code is licensed under the MIT license, and can be used freely. 
