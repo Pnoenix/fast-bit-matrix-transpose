@@ -118,7 +118,7 @@ Although I am not entirely sure, I think that there isn't really a single bottle
 [Hacker Delight](http://www.icodeguru.com/Embedded/Hacker's-Delight/048.htm) 
 [archive](https://web.archive.org/web/20140125122743/http://icodeguru.com/Embedded/Hacker's-Delight/048.htm)<br>
 [Bit-Matrix transpose](https://github.com/dsnet/matrix-transpose?tab=readme-ov-file) 
-[archive]()<br>
+[archive](https://web.archive.org/web/20260215180205/https://github.com/dsnet/matrix-transpose?tab=readme-ov-file)<br>
 [What it takes to transpose a matrix](https://gudok.xyz/transpose/) 
 [archive](https://web.archive.org/web/20260215173009/https://gudok.xyz/transpose/)
 
