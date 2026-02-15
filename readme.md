@@ -232,9 +232,9 @@ G H 0 0
 =
 C D K L
 G H O P
-
+```
 Intermediate results (Note that the original values in Register 1 and 2 have been overwritten)
-
+```
 Register 1:
 C D 0 0
 G H 0 0
@@ -247,9 +247,9 @@ E F M N
 Register 4:
 C D K L
 G H O P
-
+```
 Note that the values in Register 3 and 4 hold the results of the 2x2 swap, where the top right and bottom left 2x2 squares have been swapped. Now only a 1x1 swap is needed. When swizzling (The next step), imagine the rows/lanes in the SIMD registers as extending each other, as were they combined into an array:
-
+```
 08: Results stored in Register 1 (Swizzle Register 3 and Register 4, take row 0 and 2):
 A B I J << This row taken
 E F M N
