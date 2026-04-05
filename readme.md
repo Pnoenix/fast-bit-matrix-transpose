@@ -1,14 +1,18 @@
 # Base idea
 Transposes a 32x32 bit matrix *really* (Some might even say *blazingly*) fast. This is done through a modified divide and conquer approach. The general "formula" for transposing a matrix, is to move every (x, y) value to the (y, x) position. In code that is loosely inspired by everyones favourite snake language, it might look something like this:
-```
+```python
 matrix = [["A", "B"], ["C", "D"]]
 
 for x in range(0, 2):
-   for y in range(0, 2):
-      temp = matrix[x][y]
-      
-      matrix[x][y] = matrix[y][x]
-      matrix[y][x] = temp
+    for y in range(0, 2):
+        
+        if y > x:
+            continue
+        
+        temp = matrix[x][y]
+        
+        matrix[x][y] = matrix[y][x]
+        matrix[y][x] = temp
 ```
 While this algorithm functions just fine, there is also another way to do it. I have failed to find a specific name for this algorithm, but how it functions, is by recursively splitting the matrix into smaller and smaller squares, and then transposing those squares. On a side note, it turns out that the order in which you transpose these squares — big to small, small to big or anything in between — doesn't actually matter. Anyways, refer to this image stolen from [here](https://gudok.xyz/transpose/) ([archive](https://web.archive.org/web/20260215173009/https://gudok.xyz/transpose/)), for a visual explanation of the transpose (Due to a lack of other images on this page, please look at this image again when you feel there is too much text, and try to imagine that there are more images): 
 ![Matrix tranpose example](blocktree.png) 
